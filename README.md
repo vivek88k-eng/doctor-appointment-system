@@ -83,6 +83,6 @@ Protected APIs require a JWT token.
 In Postman, use:
 Authorization → Bearer Token
 and provide the JWT received from the login API.
-##Author
+## Author
 Vivek Kumar
 GitHub: https://github.com/vivek88k-eng⁠�
