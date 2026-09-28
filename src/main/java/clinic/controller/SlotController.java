@@ -13,13 +13,13 @@ import clinic.dto.SlotDto;
 import clinic.service.SlotService;
 
 @RestController
-@RequestMapping("/api//v1/doctors")
+@RequestMapping("/api/v1/doctors")
 public class SlotController {
     private final SlotService slotService;
     public SlotController(SlotService slotService){
         this.slotService=slotService;
     }
-    @GetMapping("/{id}/slotes")
+    @GetMapping("/{id}/slots")
     public List<SlotDto> getAvailablesSlots(@PathVariable Long id, @RequestParam LocalDate date){
         return slotService.getAvailableSlots(id, date);
     }

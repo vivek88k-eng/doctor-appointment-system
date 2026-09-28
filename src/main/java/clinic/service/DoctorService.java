@@ -7,5 +7,8 @@ import clinic.entity.Doctor;
 public interface DoctorService {
     List<Doctor>getAllActiveDoctors();
     List<Doctor> getDoctorBySpecialization(String specialization);
+    Doctor createDoctor(Doctor doctor);
+    Doctor updateDoctor(Long id, Doctor doctor);
+    void deactivateDoctor(Long id);
     
 }

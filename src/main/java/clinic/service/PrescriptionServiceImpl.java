@@ -26,6 +26,17 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     @Override
     public Prescription createPrescription(
             CreatePrescriptionRequest request) {
+                if(request==null){
+                        throw new RuntimeException("Prescription request is requried");
+                }
+                if(request.getAppointmentId()== null){
+                        throw new RuntimeException("Appointment ID is requried");
+
+                }
+                if(request.getNotes()==null || request.getNotes().isBlank()){
+                        throw new RuntimeException("Prescription notes are requried");
+
+                }
 
         Appointment appointment =
                 appointmentRepository.findById(
@@ -39,6 +50,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
             throw new RuntimeException(
                     "Prescription can only be created for completed appointments");
+        }
+        if(prescriptionRepository.findByAppointmentId(request.getAppointmentId()).isPresent()){
+                throw new RuntimeException("Prescription alredy exists for this appomtment");
+
         }
 
         Prescription prescription = new Prescription();

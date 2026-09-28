@@ -38,6 +38,9 @@ public class SlotServiceImpl implements SlotService {
 
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
+                if(!doctor.isActive()){
+                        throw new RuntimeException("Doctor is not active");
+                }
 
         DayOfWeek dayOfWeek = date.getDayOfWeek();
 
@@ -66,11 +69,12 @@ public class SlotServiceImpl implements SlotService {
                                         doctor,
                                         date,
                                         currentTime, ApptStatus.BOOKED);
+                                        boolean past =date.equals(LocalDate.now()) && currentTime.isBefore(LocalTime.now());
 
                 SlotDto slot = new SlotDto(
                         currentTime,
                         slotEnd,
-                        !booked
+                        !booked && !past
                 );
 
                 slots.add(slot);

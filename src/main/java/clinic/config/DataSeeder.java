@@ -7,6 +7,7 @@ import clinic.repository.DoctorRepository;
 import clinic.repository.UserRepository;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -16,45 +17,98 @@ public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final DoctorRepository doctorRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DataSeeder(UserRepository userRepository,
-            DoctorRepository doctorRepository) {
+            DoctorRepository doctorRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.doctorRepository = doctorRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
 
         seedUsers();
+        migrateExistingPasswords();
         seedDoctors();
     }
 
     private void seedUsers() {
 
-        if (userRepository.count() == 0) {
+        if (!userRepository.existsByEmail("rahul@gmail.com")) {
 
             User patient1 = new User(
                     null,
                     "Rahul Kumar",
                     "rahul@gmail.com",
-                    "password",
+                    passwordEncoder.encode("password"),
                     Role.PATIENT,
                     "9876543210");
+
+            userRepository.save(patient1);
+        }
+
+        if (!userRepository.existsByEmail("priya@gmail.com")) {
 
             User patient2 = new User(
                     null,
                     "Priya Sharma",
                     "priya@gmail.com",
-                    "password",
+                    passwordEncoder.encode("password"),
                     Role.PATIENT,
                     "9876543211");
 
-            userRepository.save(patient1);
             userRepository.save(patient2);
-
-            System.out.println("Seed users created successfully!");
         }
+
+        if (!userRepository.existsByEmail("admin@gmail.com")) {
+
+            User admin = new User(
+                    null,
+                    "Admin User",
+                    "admin@gmail.com",
+                    passwordEncoder.encode("admin123"),
+                    Role.ADMIN,
+                    "9876543212");
+
+            userRepository.save(admin);
+
+            
+        }
+    }
+
+    private void migrateExistingPasswords() {
+
+        userRepository.findByEmail("rahul@gmail.com").ifPresent(user -> {
+            if (!user.getPassword().startsWith("$2a$")
+                    && !user.getPassword().startsWith("$2b$")
+                    && !user.getPassword().startsWith("$2y$")) {
+
+                user.setPassword(passwordEncoder.encode("password"));
+                userRepository.save(user);
+            }
+        });
+
+        userRepository.findByEmail("priya@gmail.com").ifPresent(user -> {
+            if (!user.getPassword().startsWith("$2a$")
+                    && !user.getPassword().startsWith("$2b$")
+                    && !user.getPassword().startsWith("$2y$")) {
+
+                user.setPassword(passwordEncoder.encode("password"));
+                userRepository.save(user);
+            }
+        });
+
+        userRepository.findByEmail("admin@gmail.com").ifPresent(user -> {
+            if (!user.getPassword().startsWith("$2a$")
+                    && !user.getPassword().startsWith("$2b$")
+                    && !user.getPassword().startsWith("$2y$")) {
+
+                user.setPassword(passwordEncoder.encode("admin123"));
+                userRepository.save(user);
+            }
+        });
     }
 
     private void seedDoctors() {
@@ -89,7 +143,7 @@ public class DataSeeder implements CommandLineRunner {
             doctorRepository.save(doctor2);
             doctorRepository.save(doctor3);
 
-            System.out.println("Seed doctors created successfully!");
+            
         }
     }
 }

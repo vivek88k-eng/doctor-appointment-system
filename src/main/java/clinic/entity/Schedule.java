@@ -2,6 +2,8 @@ package clinic.entity;
 
 import java.time.LocalTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,6 +21,7 @@ public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @JsonIgnore 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="doctor_id",nullable=false)
     private Doctor doctor;

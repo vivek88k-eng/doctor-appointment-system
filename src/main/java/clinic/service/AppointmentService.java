@@ -8,8 +8,8 @@ import clinic.entity.Appointment;
 
 public interface AppointmentService {
     Appointment
-    bookAppointment(CreateAppointmentRequest request);
-    void cancelAppointment(Long appointmentId);
+    bookAppointment(CreateAppointmentRequest request, Long patientId);
+    void cancelAppointment(Long appointmentId, Long patientId);
     List<Appointment>getMyAppointments(Long patientId);
     List<Appointment> getAdminAppointments(LocalDate date, Long doctorId);
     void completeAppointment(Long appointmentId);

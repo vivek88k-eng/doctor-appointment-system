@@ -2,8 +2,10 @@ package clinic.service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -42,7 +44,28 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public Appointment bookAppointment(CreateAppointmentRequest request) {
+    public Appointment bookAppointment(CreateAppointmentRequest request, Long patientId) {
+
+        // Validate request
+        if (request == null) {
+            throw new RuntimeException("Appointment request is required");
+        }
+
+        if (patientId == null) {
+            throw new RuntimeException("Patient ID is required");
+        }
+
+        if (request.getDoctorId() == null) {
+            throw new RuntimeException("Doctor ID is required");
+        }
+
+        if (request.getApptDate() == null) {
+            throw new RuntimeException("Appointment date is required");
+        }
+
+        if (request.getSlotStart() == null) {
+            throw new RuntimeException("Appointment time is required");
+        }
 
         // 1. Find doctor
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
@@ -54,7 +77,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         // 3. Find patient
-        User patient = userRepository.findById(request.getPatientId())
+        User patient = userRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
 
         // 4. Check patient role
@@ -78,16 +101,14 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         // 7. Get day of week
-        DayOfWeek dayOfWeek =
-                request.getApptDate().getDayOfWeek();
+        DayOfWeek dayOfWeek = request.getApptDate().getDayOfWeek();
 
         int dayNumber = dayOfWeek.getValue();
 
         // 8. Find doctor's schedule for that day
-        List<Schedule> schedules =
-                scheduleRepository.findByDoctorIdAndDayOfWeek(
-                        doctor.getId(),
-                        dayNumber);
+        List<Schedule> schedules = scheduleRepository.findByDoctorIdAndDayOfWeek(
+                doctor.getId(),
+                dayNumber);
 
         if (schedules.isEmpty()) {
             throw new RuntimeException(
@@ -99,8 +120,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         for (Schedule schedule : schedules) {
 
-            LocalTime currentTime =
-                    schedule.getStartTime();
+            LocalTime currentTime = schedule.getStartTime();
 
             while (currentTime
                     .plusMinutes(schedule.getSlotMinutes())
@@ -111,33 +131,39 @@ public class AppointmentServiceImpl implements AppointmentService {
                     break;
                 }
 
-                currentTime =
-                        currentTime.plusMinutes(
-                                schedule.getSlotMinutes());
+                currentTime = currentTime.plusMinutes(
+                        schedule.getSlotMinutes());
             }
 
             if (validSlot) {
                 break;
             }
         }
+       
 
         if (!validSlot) {
             throw new RuntimeException(
                     "Invalid appointment slot");
         }
 
-        // 10. Check if slot is already booked
-        boolean alreadyBooked =
-                appointmentRepository
-                        .existsByDoctorAndApptDateAndSlotStartAndStatus(
-                                doctor,
-                                request.getApptDate(),
-                                request.getSlotStart(),
-                                ApptStatus.BOOKED);
-
-        if (alreadyBooked) {
-            throw new RuntimeException(
-                    "This slot is already booked");
+        // 10. Check existing appointment for this slot
+        Optional<Appointment> existingAppointment = appointmentRepository.findByDoctorAndApptDateAndSlotStart(doctor,
+                request.getApptDate(), request.getSlotStart());
+        // if an appointment already exists
+        if (existingAppointment.isPresent()) {
+            Appointment appointment = existingAppointment.get();
+            // Slot is available again if previous appointment was cancelled
+            if (appointment.getStatus() == ApptStatus.CANCELLED) {
+                appointment.setPatient(patient);
+                appointment.setStatus(ApptStatus.BOOKED);
+                try {
+                    return appointmentRepository.save(appointment);
+                } catch (DataIntegrityViolationException ex) {
+                    throw new DoubleBookingException("This slot is already booked");
+                }
+            }
+            // BOOKED, COMPLETED or NO_SHOW means slot cannot be reused
+            throw new DoubleBookingException("This slot is already booked");
         }
 
         // 11. Create appointment
@@ -150,62 +176,113 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(ApptStatus.BOOKED);
 
         // 12. Save appointment
-        try{
-        return appointmentRepository.save(appointment);
-        } catch(DataIntegrityViolationException ex){
-            throw new DoubleBookingException("this slot is alredy booked"); 
+        try {
+            return appointmentRepository.save(appointment);
+
+        } catch (DataIntegrityViolationException ex) {
+            throw new DoubleBookingException(
+                    "This slot is already booked");
         }
     }
 
     // Cancel appointment
     @Override
-    public void cancelAppointment(Long appointmentId) {
+    public void cancelAppointment(Long appointmentId, Long patientId) {
+        if (appointmentId == null) {
+            throw new RuntimeException("Appointment ID is required");
+        }
+        if (patientId == null) {
+            throw new RuntimeException("PatientId is required ");
+        }
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
-        Appointment appointment =
-                appointmentRepository.findById(appointmentId)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Appointment not found"));
+        // Check that this appointment belongs to the patient
+        if (!appointment.getPatient().getId().equals(patientId)) {
+            throw new RuntimeException("You can only cancel Your own appointment");
+
+        }
+        // Only booked appointment can be cancelled
+        if (appointment.getStatus() != ApptStatus.BOOKED) {
+            throw new RuntimeException("Only booked appointment can be cancelled");
+
+        }
+        // cancelled must be at least 2 hours before appointment
+        LocalDateTime appointmentDateTime = LocalDateTime.of(appointment.getApptDate(), appointment.getSlotStart());
+        if (LocalDateTime.now().plusHours(2).isAfter(appointmentDateTime)) {
+            throw new RuntimeException("Appointment can only be cancelled at least 2 hours before");
+
+        }
+        appointment.setStatus(ApptStatus.CANCELLED);
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    public List<Appointment> getMyAppointments(Long patientId) {
+
+        User patient = userRepository.findById(patientId)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        if (patient.getRole() != Role.PATIENT) {
+            throw new RuntimeException(
+                    "Only patients can view their appointments");
+        }
+
+        return appointmentRepository
+                .findByPatientOrderByApptDateDescSlotStartDesc(patient);
+    }
+
+    @Override
+    public List<Appointment> getAdminAppointments(
+            LocalDate date,
+            Long doctorId) {
+        if (date == null) {
+            throw new RuntimeException("Appointment date is required");
+        }
+        if (doctorId == null) {
+            throw new RuntimeException("Doctor ID id requried");
+        }
+
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+        return appointmentRepository
+                .findByDoctorAndApptDateOrderBySlotStart(
+                        doctor,
+                        date);
+    }
+
+    @Override
+    public void completeAppointment(Long appointmentId) {
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException(
+                        "Appointment not found"));
 
         if (appointment.getStatus() != ApptStatus.BOOKED) {
             throw new RuntimeException(
-                    "Only booked appointments can be cancelled");
+                    "Only booked appointments can be completed");
         }
 
-        appointment.setStatus(ApptStatus.CANCELLED);
-
-        appointmentRepository.save(appointment);
-    }
-    @Override
-    public List<Appointment>getMyAppointments(Long patientId){
-        User patient= userRepository.findById(patientId).orElseThrow(()->new RuntimeException("patient not found"));
-        if (patient.getRole() != Role.PATIENT){
-            throw new RuntimeException("Only patients can view their appointments");
-        }
-        return appointmentRepository.findByPatientOrderByApptDateDescSlotStartDesc(patient);
-    }
-    @Override 
-    public List<Appointment>getAdminAppointments(LocalDate date, Long doctorId){
-        Doctor doctor=doctorRepository.findById(doctorId).orElseThrow(()-> new RuntimeException("Doctor not found"));
-        return appointmentRepository.findByDoctorAndApptDateOrderBySlotStart(doctor, date);
-    }
-    @Override 
-    public void completeAppointment(Long appointmentId){
-        Appointment appointment= appointmentRepository.findById(appointmentId).orElseThrow(()-> new RuntimeException("Appointment not found"));
-        if (appointment.getStatus() != ApptStatus.BOOKED){
-            throw new RuntimeException("Only booked appointments can be completed");
-        }
         appointment.setStatus(ApptStatus.COMPLETED);
+
         appointmentRepository.save(appointment);
     }
-    @Override 
-    public void markNoShow(Long appointmentId){
-        Appointment appointment= appointmentRepository.findById(appointmentId).orElseThrow(()-> new RuntimeException("Appointment not found"));
-        if(appointment.getStatus() != ApptStatus.BOOKED){
-            throw new RuntimeException("Only booked appointments can be marked as no-show");
-        }
-        appointment.setStatus(ApptStatus.NO_SHOW);
-        appointmentRepository.save(appointment);
 
+    @Override
+    public void markNoShow(Long appointmentId) {
+
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new RuntimeException(
+                        "Appointment not found"));
+
+        if (appointment.getStatus() != ApptStatus.BOOKED) {
+            throw new RuntimeException(
+                    "Only booked appointments can be marked as no-show");
+        }
+
+        appointment.setStatus(ApptStatus.NO_SHOW);
+
+        appointmentRepository.save(appointment);
     }
 }
