@@ -82,14 +82,18 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid email or password");
         }
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
-        return new LoginResponse(token,
-                user.getFullName(),
-                user.getEmail(),
-                user.getRole().name());
 
+return new LoginResponse(
+        user.getId(),
+        token,
+        user.getFullName(),
+        user.getEmail(),
+        user.getRole().name()
+);
     }
-    @Override 
-    public User getUserByEmail(String email){
+
+    @Override
+    public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

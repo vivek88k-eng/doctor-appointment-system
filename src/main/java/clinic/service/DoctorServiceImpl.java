@@ -26,6 +26,18 @@ public class DoctorServiceImpl implements DoctorService {
         return doctorRepository
                 .findBySpecializationIgnoreCaseAndActiveTrue(specialization);
     }
+    @Override
+public Doctor getDoctorById(Long id) {
+
+    if (id == null) {
+        throw new RuntimeException("Doctor ID is required");
+    }
+
+    return doctorRepository.findById(id)
+            .filter(Doctor::isActive)
+            .orElseThrow(() ->
+                    new RuntimeException("Doctor not found"));
+}
 
     @Override
     public Doctor createDoctor(Doctor doctor) {
@@ -91,7 +103,7 @@ public class DoctorServiceImpl implements DoctorService {
         existingDoctor.setSpecialization(doctor.getSpecialization());
         existingDoctor.setConsultationFee(
                 doctor.getConsultationFee());
-
+         existingDoctor.setActive(doctor.isActive());
         return doctorRepository.save(existingDoctor);
     }
 

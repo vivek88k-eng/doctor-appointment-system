@@ -31,6 +31,14 @@ public class DoctorController {
 
         return doctorService.getAllActiveDoctors();
     }
+    @GetMapping("/doctors/{id}")
+public ResponseEntity<Doctor> getDoctorById(
+        @PathVariable Long id) {
+
+    Doctor doctor = doctorService.getDoctorById(id);
+
+    return ResponseEntity.ok(doctor);
+}
 
     // Admin: Add doctor
     @PostMapping("/admin/doctors")

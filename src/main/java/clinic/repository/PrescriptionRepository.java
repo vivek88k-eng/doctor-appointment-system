@@ -8,5 +8,9 @@ import clinic.entity.Prescription;
 
 public interface PrescriptionRepository extends JpaRepository<Prescription, Long> {
     Optional<Prescription> findByAppointmentId(Long appointmentId);
-    
+
+    Optional<Prescription> findByAppointmentIdAndAppointmentPatientId(
+        Long appointmentId,
+        Long patientId
+);
 }

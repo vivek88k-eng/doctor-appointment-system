@@ -12,55 +12,80 @@ import clinic.repository.PrescriptionRepository;
 @Service
 public class PrescriptionServiceImpl implements PrescriptionService {
 
-    private final PrescriptionRepository prescriptionRepository;
-    private final AppointmentRepository appointmentRepository;
+        private final PrescriptionRepository prescriptionRepository;
+        private final AppointmentRepository appointmentRepository;
 
-    public PrescriptionServiceImpl(
-            PrescriptionRepository prescriptionRepository,
-            AppointmentRepository appointmentRepository) {
+        public PrescriptionServiceImpl(
+                        PrescriptionRepository prescriptionRepository,
+                        AppointmentRepository appointmentRepository) {
 
-        this.prescriptionRepository = prescriptionRepository;
-        this.appointmentRepository = appointmentRepository;
-    }
+                this.prescriptionRepository = prescriptionRepository;
+                this.appointmentRepository = appointmentRepository;
+        }
 
-    @Override
-    public Prescription createPrescription(
-            CreatePrescriptionRequest request) {
-                if(request==null){
+        @Override
+        public Prescription createPrescription(
+                        CreatePrescriptionRequest request) {
+                if (request == null) {
                         throw new RuntimeException("Prescription request is requried");
                 }
-                if(request.getAppointmentId()== null){
+                if (request.getAppointmentId() == null) {
                         throw new RuntimeException("Appointment ID is requried");
 
                 }
-                if(request.getNotes()==null || request.getNotes().isBlank()){
+                if (request.getNotes() == null || request.getNotes().isBlank()) {
                         throw new RuntimeException("Prescription notes are requried");
 
                 }
 
-        Appointment appointment =
-                appointmentRepository.findById(
-                        request.getAppointmentId())
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Appointment not found"));
+                Appointment appointment = appointmentRepository.findById(
+                                request.getAppointmentId())
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Appointment not found"));
 
-        if (appointment.getStatus() !=
-                ApptStatus.COMPLETED) {
+                if (appointment.getStatus() != ApptStatus.COMPLETED) {
 
-            throw new RuntimeException(
-                    "Prescription can only be created for completed appointments");
+                        throw new RuntimeException(
+                                        "Prescription can only be created for completed appointments");
+                }
+                if (prescriptionRepository.findByAppointmentId(request.getAppointmentId()).isPresent()) {
+                        throw new RuntimeException("Prescription alredy exists for this appomtment");
+
+                }
+
+                Prescription prescription = new Prescription();
+
+                prescription.setAppointment(appointment);
+                prescription.setNotes(request.getNotes());
+
+                return prescriptionRepository.save(prescription);
         }
-        if(prescriptionRepository.findByAppointmentId(request.getAppointmentId()).isPresent()){
-                throw new RuntimeException("Prescription alredy exists for this appomtment");
 
+        @Override
+        public boolean prescriptionExists(Long appointmentId) {
+                if (appointmentId == null) {
+                        return false;
+                }
+
+                return prescriptionRepository
+                                .findByAppointmentId(appointmentId)
+                                .isPresent();
         }
 
-        Prescription prescription = new Prescription();
+        @Override
+        public Prescription getPrescriptionForPatient(
+                        Long appointmentId,
+                        Long patientId) {
 
-        prescription.setAppointment(appointment);
-        prescription.setNotes(request.getNotes());
+                if (appointmentId == null || patientId == null) {
+                        throw new RuntimeException("Appointment ID and patient ID are required");
+                }
 
-        return prescriptionRepository.save(prescription);
-    }
+                return prescriptionRepository
+                                .findByAppointmentIdAndAppointmentPatientId(
+                                                appointmentId,
+                                                patientId)
+                                .orElseThrow(() -> new RuntimeException(
+                                                "Prescription not found for this appointment"));
+        }
 }

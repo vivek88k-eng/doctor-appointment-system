@@ -2,6 +2,7 @@ package clinic.dto;
 
 public class LoginResponse {
 
+    private Long id;
     private String token;
     private String fullName;
     private String email;
@@ -10,11 +11,20 @@ public class LoginResponse {
     public LoginResponse() {
     }
 
-    public LoginResponse(String token, String fullName, String email, String role) {
+    public LoginResponse(Long id, String token, String fullName, String email, String role) {
+        this.id = id;
         this.token = token;
         this.fullName = fullName;
         this.email = email;
         this.role = role;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getToken() {
