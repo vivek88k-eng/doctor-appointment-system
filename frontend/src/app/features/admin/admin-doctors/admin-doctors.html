@@ -1,0 +1,532 @@
+<section class="admin-page">
+  <div class="admin-container">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <p class="section-label">Admin Panel</p>
+
+      <h1>Manage Doctors</h1>
+
+      <p class="section-description">
+        View and manage doctors registered in the clinic.
+      </p>
+    </div>
+
+
+    <!-- ADD DOCTOR -->
+    <div class="admin-actions">
+      <button
+        class="add-button"
+        type="button"
+        (click)="addDoctor()"
+      >
+        + Add Doctor
+      </button>
+    </div>
+    @if (showAddDoctorForm) {
+  <div class="doctor-edit-form">
+
+    <div class="schedule-header">
+      <p class="section-label">Add Doctor</p>
+      <h2>New Doctor Details</h2>
+      <p>Enter the details of the new doctor.</p>
+    </div>
+
+    <div class="schedule-form">
+
+      <div class="form-group">
+        <label for="new-doctor-name">Full Name</label>
+        <input
+          type="text"
+          id="new-doctor-name"
+          [(ngModel)]="newDoctorName"
+          placeholder="Dr. John Doe"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="new-doctor-specialization">Specialization</label>
+        <input
+          type="text"
+          id="new-doctor-specialization"
+          [(ngModel)]="newDoctorSpecialization"
+          placeholder="Cardiology"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="new-doctor-fee">Consultation Fee</label>
+        <input
+          type="number"
+          id="new-doctor-fee"
+          [(ngModel)]="newDoctorFee"
+          min="0"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="new-doctor-active">Status</label>
+        <select
+          id="new-doctor-active"
+          [(ngModel)]="newDoctorActive"
+        >
+          <option [ngValue]="true">Active</option>
+          <option [ngValue]="false">Inactive</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="schedule-footer">
+
+      <button
+        class="save-schedule-button"
+        type="button"
+        (click)="saveNewDoctor()"
+      >
+        Add Doctor
+      </button>
+
+      <button
+        class="cancel-edit-button"
+        type="button"
+        (click)="showAddDoctorForm = false"
+      >
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+}
+
+
+    <!-- DOCTOR TABLE -->
+    <div class="doctor-table">
+
+      <div class="table-header">
+        <span>Doctor</span>
+        <span>Specialization</span>
+        <span>Fee</span>
+        <span>Status</span>
+        <span>Action</span>
+      </div>
+
+      @for (doctor of doctors; track doctor.id) {
+
+        <div class="table-row">
+
+          <span>
+            {{ doctor.fullName }}
+          </span>
+
+          <span>
+            {{ doctor.specialization }}
+          </span>
+
+          <span>
+            ₹{{ doctor.consultationFee }}
+          </span>
+
+          <span [class.active-status]="doctor.active">
+            {{ doctor.active ? 'Active' : 'Inactive' }}
+          </span>
+
+          <button
+            class="edit-button"
+            type="button"
+            (click)="editDoctor(doctor.fullName)"
+          >
+            Edit
+          </button>
+
+        </div>
+
+      }
+
+    </div>
+    @if (editingDoctorId !== null) {
+
+  <div class="doctor-edit-form">
+
+    <div class="schedule-header">
+      <p class="section-label">Edit Doctor</p>
+
+      <h2>Update Doctor Details</h2>
+
+      <p>
+        Update the selected doctor's information.
+      </p>
+    </div>
+
+
+    <div class="schedule-form">
+
+      <!-- FULL NAME -->
+      <div class="form-group">
+
+        <label for="edit-doctor-name">
+          Full Name
+        </label>
+
+        <input
+          type="text"
+          id="edit-doctor-name"
+          [(ngModel)]="editFullName"
+        />
+
+      </div>
+
+
+      <!-- SPECIALIZATION -->
+      <div class="form-group">
+
+        <label for="edit-specialization">
+          Specialization
+        </label>
+
+        <input
+          type="text"
+          id="edit-specialization"
+          [(ngModel)]="editSpecialization"
+        />
+
+      </div>
+
+
+      <!-- FEE -->
+      <div class="form-group">
+
+        <label for="edit-fee">
+          Consultation Fee
+        </label>
+
+        <input
+          type="number"
+          id="edit-fee"
+          [(ngModel)]="editFee"
+        />
+
+      </div>
+
+
+      <!-- ACTIVE -->
+      <div class="form-group">
+
+        <label for="edit-active">
+          Status
+        </label>
+
+        <select
+          id="edit-active"
+          [(ngModel)]="editActive"
+        >
+
+          <option [ngValue]="true">
+            Active
+          </option>
+
+          <option [ngValue]="false">
+            Inactive
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div class="schedule-footer">
+
+      <button
+        class="save-schedule-button"
+        type="button"
+        (click)="updateDoctor()"
+      >
+        Update Doctor
+      </button>
+
+      <button
+        class="cancel-edit-button"
+        type="button"
+        (click)="editingDoctorId = null"
+      >
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+
+}
+
+
+    <!-- SCHEDULE EDITOR -->
+    <div class="schedule-editor">
+
+      <div class="schedule-header">
+
+        <p class="section-label">
+          Doctor Schedule
+        </p>
+
+        <h2>
+          Schedule Editor
+        </h2>
+
+        <p>
+          Set the working day and appointment time for a doctor.
+        </p>
+
+      </div>
+
+
+      <div class="schedule-form">
+
+        <!-- DOCTOR -->
+        <div class="form-group">
+
+          <label for="schedule-doctor">
+            Doctor
+          </label>
+
+          <select
+            id="schedule-doctor"
+            [(ngModel)]="selectedDoctorId"
+            (ngModelChange)="loadSchedules()"
+          >
+
+            @for (doctor of doctors; track doctor.id) {
+
+              <option [value]="doctor.id">
+                {{ doctor.fullName }}
+              </option>
+
+            }
+
+          </select>
+
+        </div>
+
+
+        <!-- DAY -->
+        <div class="form-group">
+
+          <label for="schedule-day">
+            Day
+          </label>
+
+          <select
+            id="schedule-day"
+            [(ngModel)]="selectedDay"
+          >
+
+            <option [value]="1">
+              Monday
+            </option>
+
+            <option [value]="2">
+              Tuesday
+            </option>
+
+            <option [value]="3">
+              Wednesday
+            </option>
+
+            <option [value]="4">
+              Thursday
+            </option>
+
+            <option [value]="5">
+              Friday
+            </option>
+
+            <option [value]="6">
+              Saturday
+            </option>
+
+            <option [value]="7">
+              Sunday
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- START TIME -->
+        <div class="form-group">
+
+          <label for="start-time">
+            Start Time
+          </label>
+
+          <input
+            type="time"
+            id="start-time"
+            [(ngModel)]="startTime"
+          />
+
+        </div>
+
+
+        <!-- END TIME -->
+        <div class="form-group">
+
+          <label for="end-time">
+            End Time
+          </label>
+
+          <input
+            type="time"
+            id="end-time"
+            [(ngModel)]="endTime"
+          />
+
+        </div>
+
+
+        <!-- SLOT DURATION -->
+        <div class="form-group">
+
+          <label for="slot-minutes">
+            Slot Duration
+          </label>
+
+          <select
+            id="slot-minutes"
+            [(ngModel)]="slotMinutes"
+          >
+
+            <option [value]="15">
+              15 minutes
+            </option>
+
+            <option [value]="30">
+              30 minutes
+            </option>
+
+            <option [value]="45">
+              45 minutes
+            </option>
+
+            <option [value]="60">
+              60 minutes
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <!-- SAVE SCHEDULE -->
+      <div class="schedule-footer">
+
+        <p class="schedule-note">
+          Example: 10:00 AM - 2:00 PM with 30-minute slots.
+        </p>
+
+        <button
+          class="save-schedule-button"
+          type="button"
+          (click)="saveSchedule()"
+        >
+          {{ editingScheduleId !==null ? 'Update Schedule' : 'Save Schedule'}}
+        </button>
+        @if (editingScheduleId !== null) {
+          <button
+          class="cancel-edit-button"
+          type="button"
+          (click)="editingScheduleId = null">
+        Cancel Edit
+       </button>
+        }
+
+      </div>
+
+    </div>
+
+
+    <!-- EXISTING SCHEDULES -->
+    <div class="existing-schedules">
+
+      <div class="schedule-header">
+
+        <p class="section-label">
+          Existing Schedules
+        </p>
+
+        <h2>
+          Current Working Hours
+        </h2>
+
+        <p>
+          Schedules currently configured for the selected doctor.
+        </p>
+
+      </div>
+
+
+      @if (schedules.length > 0) {
+
+        <div class="schedule-list">
+
+          @for (schedule of schedules; track schedule.id) {
+
+            <div class="schedule-item">
+
+              <div class="schedule-info">
+
+                <strong>
+                  Day {{ schedule.dayOfWeek }}
+                </strong>
+
+                <span>
+                  {{ schedule.startTime }} -
+                  {{ schedule.endTime }}
+                </span>
+
+              </div>
+
+              <div class="schedule-duration">
+
+                {{ schedule.slotMinutes }}
+                minutes
+
+              </div>
+              <div class="sechedule-actions">
+                <button
+                type="button"
+                class="edit-button"
+                (click)="editSchedule(schedule)">
+                Edit
+              </button>
+              <button 
+              type="button"
+              class="delete-button"
+              (click)="deleteSchedule(schedule.id)">
+              Delete
+            </button>
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      } @else {
+
+        <p class="no-schedules">
+          No schedule found for this doctor.
+        </p>
+
+      }
+
+    </div>
+
+  </div>
+</section>

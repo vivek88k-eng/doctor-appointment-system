@@ -1,0 +1,173 @@
+.appointments-page {
+  min-height: calc(100vh - 73px);
+  padding: 60px 20px;
+  background-color: #f8fafc;
+}
+
+.appointments-container {
+  width: 90%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-label {
+  margin: 0 0 10px;
+  color: #0f766e;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 38px;
+}
+
+.section-description {
+  margin: 14px 0 0;
+  color: #64748b;
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.appointment-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+  padding: 25px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+}
+
+.appointment-info h2 {
+  margin: 0 0 7px;
+  color: #0f172a;
+  font-size: 21px;
+}
+
+.specialization {
+  margin: 0 0 16px;
+  color: #0f766e;
+  font-weight: 600;
+}
+
+.appointment-details {
+  display: flex;
+  gap: 20px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.appointment-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 15px;
+}
+
+.status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status.booked {
+  background-color: #ccfbf1;
+  color: #0f766e;
+}
+
+.status.completed {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+.status.cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+.status.no-show {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+
+.cancel-button {
+  padding: 9px 15px;
+  border: 1px solid #dc2626;
+  border-radius: 7px;
+  background-color: #ffffff;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background-color: #fef2f2;
+}
+.empty-state {
+  padding: 45px 20px;
+  margin-top: 20px;
+  text-align: center;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.empty-state h2 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 22px;
+}
+
+.empty-state p {
+  margin: 0 0 20px;
+  color: #64748b;
+}
+
+.empty-state a {
+  display: inline-block;
+  padding: 11px 18px;
+  border-radius: 8px;
+  background-color: #0f766e;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.empty-state a:hover {
+  background-color: #115e59;
+}
+
+@media (max-width: 650px) {
+  .page-header h1 {
+    font-size: 30px;
+  }
+
+  .appointment-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .appointment-status {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .appointment-details {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

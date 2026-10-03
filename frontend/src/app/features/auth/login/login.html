@@ -1,0 +1,67 @@
+<section class="login-page">
+    <div class="login-card">
+
+        <div class="login-header">
+            <div class="login-icon">🩺</div>
+
+            <h1>Welcome Back</h1>
+            <p>Login to your ClinicCare account</p>
+        </div>
+
+        <form #loginForm="ngForm" (ngSubmit)="loginForm.valid && login()">
+
+            <div class="form-group">
+                <label for="email">Email</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    [(ngModel)]="email"
+                    placeholder="Enter your email"
+                    required
+                    email
+                />
+
+                <small
+                    class="error-message"
+                    *ngIf="loginForm.submitted && loginForm.controls['email']?.invalid">
+                    *Please enter a valid email address.
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    [(ngModel)]="password"
+                    minlength="6"
+                    required
+                    placeholder="Enter your password"
+                />
+
+                <small
+                    class="error-message"
+                    *ngIf="loginForm.submitted && loginForm.controls['password']?.invalid">
+                    *Password must be at least 6 characters.
+                </small>
+            </div>
+
+            <button
+                type="submit"
+                class="login-button">
+                Login
+            </button>
+
+        </form>
+
+        <p class="register-text">
+            Don't have an account?
+            <a routerLink="/register">Create an account</a>
+        </p>
+
+    </div>
+</section>

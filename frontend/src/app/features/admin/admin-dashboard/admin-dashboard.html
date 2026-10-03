@@ -1,0 +1,109 @@
+<section class="dashboard-page">
+  <div class="dashboard-container">
+
+    <div class="page-header">
+      <p class="section-label">Admin Panel</p>
+
+      <h1>Dashboard</h1>
+
+      <p class="section-description">
+        Overview of your clinic's appointments and doctors.
+      </p>
+    </div>
+
+    <!-- Statistics -->
+
+    <div class="stats-grid">
+
+      <div class="stat-card">
+        <p>Total Doctors</p>
+        <h2>{{ totalDoctors }}</h2>
+        <span>Active doctors</span>
+      </div>
+
+      <div class="stat-card">
+        <p>Today's Appointments</p>
+        <h2>{{ dashboard.todayAppointments }}</h2>
+        <span>Scheduled today</span>
+      </div>
+
+      <div class="stat-card">
+        <p>Completed</p>
+        <h2>{{ dashboard.completedAppointments }}</h2>
+        <span>Appointments completed</span>
+      </div>
+
+      <div class="stat-card">
+        <p>Booked</p>
+        <h2>{{ dashboard.bookedAppointments }}</h2>
+        <span>Upcoming appointments</span>
+      </div>
+
+      <div class="stat-card">
+  <p>No Show</p>
+  <h2>{{ dashboard.noShowAppointments }}</h2>
+  <span>Patients who did not attend</span>
+</div>
+
+<div class="stat-card">
+  <p>Cancelled</p>
+  <h2>{{ dashboard.cancelledAppointments }}</h2>
+  <span>Cancelled appointments</span>
+</div>
+
+    </div>
+
+    <!-- Quick Actions -->
+
+    <div class="quick-actions">
+
+      <div class="section-heading">
+        <h2>Quick Actions</h2>
+
+        <p>
+          Quickly access common admin tasks.
+        </p>
+      </div>
+
+      <div class="action-grid">
+
+        <a
+          routerLink="/admin/doctors"
+          class="action-card"
+        >
+          <div class="action-icon">👨‍⚕️</div>
+
+          <div>
+            <h3>Manage Doctors</h3>
+
+            <p>
+              Add, edit and manage clinic doctors.
+            </p>
+          </div>
+
+          <span class="action-arrow">→</span>
+        </a>
+
+        <a
+          routerLink="/admin/day"
+          class="action-card"
+        >
+          <div class="action-icon">📅</div>
+
+          <div>
+            <h3>Today's Appointments</h3>
+
+            <p>
+              View and manage today's patient appointments.
+            </p>
+          </div>
+
+          <span class="action-arrow">→</span>
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>

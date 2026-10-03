@@ -1,0 +1,71 @@
+<section class="slot-page">
+  <div class="slot-container">
+
+    <div class="page-header">
+      <p class="section-label">Book Appointment</p>
+      <h1>Select a time slot and book your appointment</h1>
+    </div>
+
+    <div class="doctor-summary">
+      <div class="doctor-icon">👨‍⚕️</div>
+
+      <div class="doctor-info">
+        <h2>{{ doctor.name }}</h2>
+        <p>{{ doctor.specialization }}</p>
+      </div>
+    </div>
+
+    <div class="date-section">
+      <label for="appointmentDate">Select Date</label>
+
+      <input
+        id="appointmentDate"
+        type="date"
+        [min]="today"
+        [(ngModel)]="selectedDate"
+        (change)="dateChanged()"
+        required
+      />
+    </div>
+
+    <div class="slots-section">
+      <h2>Available Slots</h2>
+
+      @if (slots.length === 0) {
+        <p>No available slots for this date.</p>
+      }
+
+      @if (slots.length > 0) {
+        <div class="slots-grid">
+
+          @for (slot of slots; track slot.startTime) {
+            <button
+              type="button"
+              class="slot-button"
+              [class.available]="slot.available"
+              [class.booked]="!slot.available"
+              [disabled]="!slot.available"
+              (click)="selectSlot(slot.startTime)"
+              [class.selected]="selectedSlot === slot.startTime"
+            >
+              {{ slot.startTime.substring(0, 5) }}
+            </button>
+          }
+
+        </div>
+      }
+    </div>
+
+    <div class="confirm-section">
+      <button
+        type="button"
+        class="confirm-button"
+        [disabled]="!selectedDate || !selectedSlot"
+        (click)="confirmAppointment()"
+      >
+        Confirm Appointment
+      </button>
+    </div>
+
+  </div>
+</section>

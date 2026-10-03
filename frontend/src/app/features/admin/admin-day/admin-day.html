@@ -1,0 +1,202 @@
+<section class="admin-day-page">
+  <div class="admin-day-container">
+
+    <div class="page-header">
+      <p class="section-label">Admin Panel</p>
+
+      <h1>Today's Appointments</h1>
+
+      <p class="section-description">
+        View and manage appointments for a selected date.
+      </p>
+    </div>
+
+    <!-- Date Filter -->
+    <div class="date-section">
+
+      <div class="date-input">
+        <label for="appointment-date">Select Date</label>
+
+        <input
+          type="date"
+          id="appointment-date"
+          [(ngModel)]="selectedDate"
+        />
+      </div>
+
+      <div class="date-input">
+        <label for="appointment-doctor">Select Doctor</label>
+
+        <select
+          id="appointment-doctor"
+          [(ngModel)]="selectedDoctorId"
+        >
+          @for (doctor of doctors; track doctor.id) {
+            <option [value]="doctor.id">
+              {{ doctor.fullName }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <button
+        class="view-button"
+        type="button"
+        (click)="loadAppointments()"
+      >
+        View Appointments
+      </button>
+
+    </div>
+
+    <!-- Appointments Table -->
+    <div class="appointments-table">
+
+      <div class="table-header">
+        <span>Patient</span>
+        <span>Doctor</span>
+        <span>Time</span>
+        <span>Status</span>
+        <span>Action</span>
+      </div>
+
+      @if (appointments.length > 0) {
+
+        @for (appointment of appointments; track appointment.id) {
+
+          <div class="table-row">
+
+            <span class="patient-name">
+              {{ appointment.patient.fullName }}
+            </span>
+
+            <span>
+              {{ appointment.doctor.fullName }}
+            </span>
+
+            <span>
+              {{ appointment.slotStart }}
+            </span>
+
+            <span
+              class="status"
+              [class.booked]="appointment.status === 'BOOKED'"
+              [class.completed]="appointment.status === 'COMPLETED'"
+              [class.no-show]="appointment.status === 'NO_SHOW'"
+              [class.cancelled]="appointment.status === 'CANCELLED'"
+            >
+              {{ appointment.status }}
+            </span>
+
+            <div class="action-buttons">
+
+              @if (appointment.status === 'BOOKED') {
+
+                <button
+                  class="complete-button"
+                  type="button"
+                  (click)="completeAppointment(appointment.id)"
+                >
+                  Complete
+                </button>
+
+                <button
+                  class="no-show-button"
+                  type="button"
+                  (click)="markNoShow(appointment.id)"
+                >
+                  No Show
+                </button>
+
+              } @else {
+
+                @if (appointment.status === 'COMPLETED') {
+
+                  @if (!prescriptionExists[appointment.id]) {
+
+                    <button
+                      class="prescription-button"
+                      type="button"
+                      (click)="openPrescriptionForm(appointment.id)"
+                    >
+                      Prescription
+                    </button>
+
+                  } @else {
+
+                    <span class="action-done">
+                      Prescription Created
+                    </span>
+
+                  }
+
+                } @else {
+
+                  <span class="action-done">
+                    {{ appointment.status }}
+                  </span>
+
+                }
+
+              }
+
+            </div>
+
+          </div>
+
+        }
+
+      } @else {
+
+        <div class="no-appointments">
+          No appointments found for this date.
+        </div>
+
+      }
+
+    </div>
+
+    <!-- Prescription Form -->
+    @if (showPrescriptionForm) {
+
+      <div class="prescription-form">
+
+        <h2>Create Prescription</h2>
+
+        <label for="prescription-notes">
+          Prescription Notes
+        </label>
+
+        <textarea
+          id="prescription-notes"
+          rows="5"
+          [(ngModel)]="prescriptionNotes"
+          placeholder="Enter prescription notes..."
+        ></textarea>
+
+        <div class="prescription-actions">
+
+          <button
+            type="button"
+            class="save-prescription-button"
+            (click)="savePrescription()"
+          >
+            Save Prescription
+          </button>
+
+          <button
+            type="button"
+            class="cancel-prescription-button"
+            (click)="showPrescriptionForm = false"
+          >
+            Cancel
+          </button>
+
+        </div>
+
+      </div>
+
+    }
+
+  </div>
+</section>

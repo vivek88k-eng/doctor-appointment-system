@@ -1,0 +1,121 @@
+<section class="doctors-page">
+
+  <div class="doctors-container">
+
+    <div class="page-header">
+      <p class="section-label">Our Doctors</p>
+
+      <h1>Find a doctor for your healthcare needs</h1>
+
+      <p class="section-description">
+        Browse our doctors and choose a specialist for your appointment.
+      </p>
+    </div>
+
+    <div class="search-section">
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        (keyup.enter)="searchDoctors()"
+        placeholder="Search by specialization..."
+      />
+
+      <button
+        type="button"
+        (click)="searchDoctors()"
+      >
+        Search
+      </button>
+    </div>
+
+    <div class="doctors-grid">
+
+      @for (doctor of filteredDoctors; track doctor.id) {
+
+        <div class="doctor-card">
+
+          <div class="doctor-icon">
+            👨‍⚕️
+          </div>
+
+          <div class="doctor-info">
+
+            <h2>{{ doctor.fullName }}</h2>
+
+            <p class="specialization">
+              {{ doctor.specialization }}
+            </p>
+
+            <p class="fee">
+              Consultation Fee: ₹{{ doctor.consultationFee }}
+            </p>
+
+            <!-- Availability -->
+            <div class="availability">
+
+              <p class="availability-title">
+                Available Days
+              </p>
+
+              @if (schedules[doctor.id]?.length ?? 0 > 0) {
+
+                <div class="available-days">
+
+                  @for (
+                    schedule of schedules[doctor.id];
+                    track schedule.id
+                  ) {
+
+                    <span class="day-badge">
+                      {{ getDayName(schedule.dayOfWeek) }}
+                      <span class="sechedule-time">
+                        {{ getScheduleTime(schedule) }}
+                      </span>
+                    </span>
+
+                  }
+
+                </div>
+
+              } @else {
+
+                <span class="no-schedule">
+                  No schedule available
+                </span>
+
+              }
+
+            </div>
+
+            <a
+              class="book-button"
+              [routerLink]="['/doctors', doctor.id, 'book']"
+            >
+              View Slots
+            </a>
+
+          </div>
+
+        </div>
+
+      }
+
+    </div>
+
+    @if (filteredDoctors.length === 0) {
+
+      <div class="empty-state">
+
+        <h2>No doctors found</h2>
+
+        <p>
+          Try searching for another specialization.
+        </p>
+
+      </div>
+
+    }
+
+  </div>
+
+</section>

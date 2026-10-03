@@ -1,0 +1,129 @@
+<section class="appointments-page">
+
+  <div class="appointments-container">
+
+    <div class="page-header">
+
+      <p class="section-label">
+        My Appointments
+      </p>
+
+      <h1>
+        Your Appointments
+      </h1>
+
+      <p class="section-description">
+        View and manage your upcoming and previous appointments.
+      </p>
+
+    </div>
+
+
+    <div class="appointments-list">
+
+      @for (appointment of appointments; track appointment.id) {
+
+        <div class="appointment-card">
+
+          <div class="appointment-info">
+
+            <h2>
+              {{ appointment.doctor.fullName }}
+            </h2>
+
+            <p class="specialization">
+              {{ appointment.doctor.specialization }}
+            </p>
+
+            <div class="appointment-details">
+
+              <span>
+                📅 {{ appointment.apptDate }}
+              </span>
+
+              <span>
+                🕐 {{ appointment.slotStart }}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="appointment-status">
+
+            <span
+              class="status"
+              [class.booked]="appointment.status === 'BOOKED'"
+              [class.completed]="appointment.status === 'COMPLETED'"
+              [class.cancelled]="appointment.status === 'CANCELLED'"
+              [class.no-show]="appointment.status === 'NO_SHOW'"
+            >
+              {{ appointment.status }}
+            </span>
+
+
+            @if (appointment.status === 'BOOKED') {
+
+              <button
+                class="cancel-button"
+                type="button"
+                (click)="cancelAppointment(appointment)"
+              >
+                Cancel Appointment
+              </button>
+
+            }
+
+
+            @if (
+              appointment.status === 'COMPLETED' &&
+              prescriptions[appointment.id]
+            ) {
+
+              <div class="patient-prescription">
+
+                <p class="prescription-title">
+                  Prescription
+                </p>
+
+                <div class="prescription-notes">
+                  {{ prescriptions[appointment.id].notes }}
+                </div>
+
+              </div>
+
+            }
+
+          </div>
+
+        </div>
+
+      }
+
+    </div>
+
+
+    @if (appointments.length === 0) {
+
+      <div class="empty-state">
+
+        <h2>
+          No appointments found
+        </h2>
+
+        <p>
+          You don't have any appointments yet.
+        </p>
+
+        <a routerLink="/doctors">
+          Find a Doctor
+        </a>
+
+      </div>
+
+    }
+
+  </div>
+
+</section>
