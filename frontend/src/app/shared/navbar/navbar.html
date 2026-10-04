@@ -15,9 +15,11 @@
         My Appointments
       </a>
 
+      @if (isAdmin) {
       <a routerLink="/admin">
         Admin
       </a>
+    }
 
       @if (isLoggedIn) {
         <button

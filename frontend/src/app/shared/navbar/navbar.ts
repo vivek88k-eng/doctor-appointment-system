@@ -12,6 +12,7 @@ import { filter } from 'rxjs/operators';
 export class Navbar implements OnInit {
 
   isLoggedIn = false;
+  isAdmin=false;
 
   constructor(
     private authService: AuthService,
@@ -32,7 +33,10 @@ export class Navbar implements OnInit {
   }
 
   checkLoginStatus() {
-    this.isLoggedIn = !!localStorage.getItem('token');
+    const token= localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    this.isLoggedIn=!!token;
+    this.isAdmin=!!token && role === 'ADMIN';
   }
 
   logout() {

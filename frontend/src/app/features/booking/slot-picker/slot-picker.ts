@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -33,7 +33,8 @@ export class SlotPicker implements OnInit {
     private route: ActivatedRoute,
     private slotService: SlotService,
     private appointmentService: AppointmentService,
-    private doctorService: DoctorService
+    private doctorService: DoctorService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -68,6 +69,7 @@ export class SlotPicker implements OnInit {
         console.log('Slots loaded:', response);
         this.slots = response;
         this.selectedSlot = '';
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Failed to load slots:', error);

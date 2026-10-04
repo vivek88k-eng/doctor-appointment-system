@@ -8,6 +8,7 @@ import { MyAppointments } from './features/appointments/my-appointments/my-appoi
 import { AdminDoctors } from './features/admin/admin-doctors/admin-doctors';
 import { AdminDay } from './features/admin/admin-day/admin-day';
 import { AdminDashboard } from './features/admin/admin-dashboard/admin-dashboard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
     { path: '', component: Home },
@@ -16,7 +17,7 @@ export const routes: Routes = [
     { path: 'doctors', component: Doctors },
     { path: 'doctors/:id/book', component: SlotPicker },
     { path: 'my-appointments', component: MyAppointments },
-    { path: 'admin', component: AdminDashboard },
-    { path: 'admin/doctors', component: AdminDoctors },
-    { path: 'admin/day', component: AdminDay }
+    { path: 'admin', component: AdminDashboard, canActivate: [adminGuard] },
+    { path: 'admin/doctors', component: AdminDoctors, canActivate: [adminGuard] },
+    { path: 'admin/day', component: AdminDay, canActivate: [adminGuard] }
 ];
